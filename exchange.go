@@ -106,11 +106,13 @@ func exchange(requests int, bidSummary *BidSummary, wg *sync.WaitGroup) {
 	bidTpl := template.New("OpenRTB")
 	switch *exchangeName {
 	case "index":
-		bidTpl.Parse(indexBids[0])
+		bidTpl.Parse(indexBids[rand.Intn(len(indexBids))])
 		break
 	case "rubicon":
-		bidTpl.Parse(rubiconBids[0])
+		bidTpl.Parse(rubiconBids[rand.Intn(len(rubiconBids))])
 		break
+	case "bidswitch":
+		bidTpl.Parse(bidswitchBids[rand.Intn(len(bidswitchBids))])
 	}
 
 	for i := 0; i < requests; i++ {
@@ -122,7 +124,7 @@ func exchange(requests int, bidSummary *BidSummary, wg *sync.WaitGroup) {
 			Id:        randSeq(10),
 			Domain:    u.Host,
 			BuyerId:   randSeq(10),
-			UserId:    randSeq(20),
+			UserId:    USER_IDS[rand.Intn(len(USER_IDS))],
 			UserAgent: USER_AGENTS[rand.Intn(len(USER_AGENTS))],
 			Dim:       DIMENSIONS[rand.Intn(len(DIMENSIONS))],
 			PubData:   pubData,
@@ -145,12 +147,11 @@ func exchange(requests int, bidSummary *BidSummary, wg *sync.WaitGroup) {
 			buff := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
 			buff.ReadFrom(resp.Body)
 			orsp, err := openrtb.ParseResponseBytes(buff.Bytes())
-			if err != nil {
+			fmt.Println(string(buff.Bytes()))
+			if err == nil {
 				bidSummary.Html += generate(orsp)
-			} else {
-				bidSummary.Html += generate(orsp)
+				bidSummary.BIDS += 1
 			}
-			bidSummary.BIDS += 1
 		} else if resp.StatusCode == 204 {
 			bidSummary.NOBIDS += 1
 		} else {

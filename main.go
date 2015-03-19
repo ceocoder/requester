@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -25,8 +27,14 @@ var (
 	standAlone           = flag.Bool("standAlone", false, "Run a standalone dummy bidder that responds with NOBID")
 )
 
+//computed variables
+var (
+	USER_IDS = []string{}
+)
+
 func parseAndValidate() {
 	flag.Parse()
+	USER_IDS = readUsersList()
 
 	//ensure that only seconds OR reqests are specified
 	if (*seconds == 0 && *requests == 0) || (*seconds > 0 && *requests > 0) {
@@ -36,8 +44,21 @@ func parseAndValidate() {
 	}
 
 }
+
+func readUsersList() []string {
+	if *buyerUserIdsFile != "none" {
+		users, err := ioutil.ReadFile(*buyerUserIdsFile)
+		if err != nil {
+			log.Fatalf("Unable to open userlist file %v", *buyerUserIdsFile)
+		}
+		return strings.Split(string(users), "\n")
+	}
+	return []string{randSeq(10), randSeq(10), randSeq(10)}
+}
+
 func main() {
 	parseAndValidate()
+
 	bidSummaries := make([]BidSummary, 10)
 
 	//seed random

@@ -35,7 +35,8 @@ var indexBids = []string{`{
         "page": "ebay.es"
     },
     "user": {
-        "id": "{{ .UserId }}"
+        "id": "{{ .UserId }}",
+        "buyeruid": "{{ .UserId }}"
     }
 }
 `, `{
@@ -112,6 +113,7 @@ var indexBids = []string{`{
         }
     },
     "user": {
-        "id": "{{ .UserId }}"
+        "id": "{{ .UserId }}",
+        "buyeruid": "{{ .UserId }}"
     }
 }`}
