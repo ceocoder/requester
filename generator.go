@@ -28,7 +28,8 @@ const (
 <h3>{{ .Bid.Price }}</h3>
 <p>{{ .EscapedAdm }}</p>
 <h3>Rendered Snippet</h3>
-<iframe src="data:text/html;base64,\n{{ .Base64Snip }}" scrolling=no marginwidth=0 marginheight=0></iframe>
+<iframe src="data:text/html;base64,
+{{ .Base64Snip }}" scrolling=no marginwidth=0 marginheight=0></iframe>
 </li>`
 )
 
@@ -37,7 +38,7 @@ type Bid struct {
 }
 
 func (bid Bid) Base64Snip() string {
-	return b64.URLEncoding.EncodeToString([]byte(*bid.Bid.Adm))
+	return b64.StdEncoding.EncodeToString([]byte(*bid.Bid.Adm))
 }
 
 func (bid Bid) EscapedAdm() string {
