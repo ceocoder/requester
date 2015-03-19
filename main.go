@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	b64 "encoding/base64"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -18,6 +19,7 @@ var (
 	bidderUrl            = flag.String("url", "http://localhost:8080/bid/openrtb", "Bidder Endpoint")
 	sampleEncryptedPrice = flag.String("sampleEncryptedPrice", "foo", "Sample encrypted price")
 	buyerUserIdsFile     = flag.String("buyerUserIdsFile", "none", "Buyer's userIds")
+	encodeUserIds        = flag.Bool("encodeUserIds", false, "Encode useIds using base64 encoding")
 	exchangeName         = flag.String("exchangeName", "index", "Exchange type to use - possible values rubicon, index")
 	maxQps               = flag.Int("maxQps", 100, "Maximum queries per second")
 	seconds              = flag.Int("seconds", 0, "Number of seconds to send reqeusts")
@@ -34,7 +36,7 @@ var (
 
 func parseAndValidate() {
 	flag.Parse()
-	USER_IDS = readUsersList()
+	readUsersList()
 
 	//ensure that only seconds OR reqests are specified
 	if (*seconds == 0 && *requests == 0) || (*seconds > 0 && *requests > 0) {
@@ -45,15 +47,20 @@ func parseAndValidate() {
 
 }
 
-func readUsersList() []string {
+func readUsersList() {
 	if *buyerUserIdsFile != "none" {
 		users, err := ioutil.ReadFile(*buyerUserIdsFile)
 		if err != nil {
 			log.Fatalf("Unable to open userlist file %v", *buyerUserIdsFile)
 		}
-		return strings.Split(string(users), "\n")
+		for _, user := range strings.Split(string(users), "\n") {
+			if *encodeUserIds {
+				USER_IDS = append(USER_IDS, b64.URLEncoding.EncodeToString([]byte(user)))
+			} else {
+				USER_IDS = append(USER_IDS, user)
+			}
+		}
 	}
-	return []string{randSeq(10), randSeq(10), randSeq(10)}
 }
 
 func main() {
