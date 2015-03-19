@@ -147,7 +147,6 @@ func exchange(requests int, bidSummary *BidSummary, wg *sync.WaitGroup) {
 			buff := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
 			buff.ReadFrom(resp.Body)
 			orsp, err := openrtb.ParseResponseBytes(buff.Bytes())
-			fmt.Println(string(buff.Bytes()))
 			if err == nil {
 				bidSummary.Html += generate(orsp)
 				bidSummary.BIDS += 1
