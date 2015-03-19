@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"strings"
 	"text/template"
 
@@ -25,7 +26,7 @@ const (
 <h3>Bid Response</h3>
 <h2>{{ .Bid.Id }}</h2>
 <h3>{{ .Bid.Price }}</h3>
-<p>{{ .Bid.Adm }}</p>
+<p>{{ .EscapedAdm }}</p>
 <h3>Rendered Snippet</h3>
 <iframe src="data:text/html;base64,\n{{ .Base64Snip }}" scrolling=no marginwidth=0 marginheight=0></iframe>
 </li>`
@@ -37,6 +38,10 @@ type Bid struct {
 
 func (bid Bid) Base64Snip() string {
 	return b64.URLEncoding.EncodeToString([]byte(*bid.Bid.Adm))
+}
+
+func (bid Bid) EscapedAdm() string {
+	return html.EscapeString(*bid.Bid.Adm)
 }
 
 var (
